@@ -1,0 +1,136 @@
+package com.poc.azureservicebuspoc;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.UUID;
+
+import javax.annotation.PostConstruct;
+
+import com.azure.data.tables.TableClient;
+import com.azure.data.tables.TableClientBuilder;
+import com.azure.data.tables.models.TableEntity;
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
+import org.springframework.stereotype.Component;
+
+@Component
+public class AzureTableStorageProcessorTest {
+
+    private static final String CONN_STR = "<STORAGE-CONNECTION-STRING>";
+
+    private static final String CONTAINER_NAME = "<BLOB_STORAGE_CONTAINER_NAME>";
+
+    public static final String TABLE_NAME = "<TABLE-NAME>"
+
+//    @PostConstruct
+    public void createNewRecord() {
+        BlobServiceClient blobServiceClient = new BlobServiceClientBuilder().connectionString(CONN_STR).buildClient();
+        BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(CONTAINER_NAME);
+
+        String batchId = UUID.randomUUID().toString();
+
+//        String messageJson = "{\"text\" : \"this is a test message\"}";
+//        InputStream inputStream = new ByteArrayInputStream(messageJson.getBytes(StandardCharsets.UTF_8));
+
+        BlobClient blobClient = containerClient.getBlobClient(batchId);
+
+//        System.out.println("\nUploading to Blob storage as blob:\n\t" + blobClient.getBlobUrl());
+//        blobClient.upload(inputStream, messageJson.length());
+
+        /*TableClient tableClient = new TableClientBuilder()
+            .connectionString(CONN_STR) // or use any of the other authentication methods
+            .tableName(TABLE_NAME)
+            .buildClient();*/
+
+
+        /*String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        TableEntity entity = new TableEntity(date, batchId)
+            .addProperty("publish_timestamp", LocalDateTime.now())
+            .addProperty("payload_url", blobClient.getBlobUrl());
+        tableClient.createEntity(entity);*/
+
+        String payload = blobClient.downloadContent().toString();
+        int x = 0;
+    }
+
+    public void uploadToAzureBlob() {
+        BlobServiceClient blobServiceClient = new BlobServiceClientBuilder().connectionString(CONN_STR).buildClient();
+        BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(CONTAINER_NAME);
+
+        String batchId = UUID.randomUUID().toString();
+
+        String messageJson = "{\"text\" : \"this is a test message\"}";
+        InputStream inputStream = new ByteArrayInputStream(messageJson.getBytes(StandardCharsets.UTF_8));
+
+        BlobClient blobClient = containerClient.getBlobClient(batchId);
+
+        System.out.println("\nUploading to Blob storage as blob:\n\t" + blobClient.getBlobUrl());
+        blobClient.upload(inputStream, messageJson.length());
+    }
+
+    public void downloadFromAzureBlob() {
+        BlobServiceClient blobServiceClient = new BlobServiceClientBuilder().connectionString(CONN_STR).buildClient();
+        BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(CONTAINER_NAME);
+
+        String batchId = UUID.randomUUID().toString();
+
+        BlobClient blobClient = containerClient.getBlobClient(batchId);
+
+        System.out.println("\nUploading to Blob storage as blob:\n\t" + blobClient.getBlobUrl());
+        String payload = blobClient.downloadContent().toString();
+    }
+
+    public void uploadAndDownloadFromAzureBlob() {
+        BlobServiceClient blobServiceClient = new BlobServiceClientBuilder().connectionString(CONN_STR).buildClient();
+        BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(CONTAINER_NAME);
+
+        String batchId = UUID.randomUUID().toString();
+
+        String messageJson = "{\"text\" : \"this is a test message\"}";
+        InputStream inputStream = new ByteArrayInputStream(messageJson.getBytes(StandardCharsets.UTF_8));
+
+        BlobClient blobClient = containerClient.getBlobClient(batchId);
+
+        System.out.println("\nUploading to Blob storage as blob:\n\t" + blobClient.getBlobUrl());
+        blobClient.upload(inputStream, messageJson.length());
+
+        String payload = blobClient.downloadContent().toString();
+    }
+
+    public void uploadAndUseAzureBlobUrlInTableStorage() {
+        BlobServiceClient blobServiceClient = new BlobServiceClientBuilder().connectionString(CONN_STR).buildClient();
+        BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(CONTAINER_NAME);
+
+        String batchId = UUID.randomUUID().toString();
+
+        String messageJson = "{\"text\" : \"this is a test message\"}";
+        InputStream inputStream = new ByteArrayInputStream(messageJson.getBytes(StandardCharsets.UTF_8));
+
+        BlobClient blobClient = containerClient.getBlobClient(batchId);
+
+        System.out.println("\nUploading to Blob storage as blob:\n\t" + blobClient.getBlobUrl());
+        blobClient.upload(inputStream, messageJson.length());
+
+        TableClient tableClient = new TableClientBuilder()
+            .connectionString(CONN_STR) // or use any of the other authentication methods
+            .tableName(TABLE_NAME)
+            .buildClient();
+
+
+        String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        TableEntity entity = new TableEntity(date, batchId)
+            .addProperty("publish_timestamp", LocalDateTime.now())
+            .addProperty("payload_url", blobClient.getBlobUrl());
+        tableClient.createEntity(entity);
+    }
+
+
+
+
+}
