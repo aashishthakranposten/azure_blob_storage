@@ -40,3 +40,15 @@ public class UnitRegisterService {
         });
     }
 }
+
+/* Generated Dynamic query
+select unitregist0_.unit_nr as unit_nr1_2_ 
+from unit_register unitregist0_ 
+where exists (
+				select localarear1_.country_code, localarear1_.service_code, localarear1_.unit_nr 
+				from local_area_register localarear1_ 
+				where localarear1_.unit_nr=unitregist0_.unit_nr 
+				and localarear1_.service_code=? 
+				and localarear1_.country_code=?
+			)
+*/
